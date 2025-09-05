@@ -34,6 +34,7 @@ async function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const inputData={url: url};
     const features = extractFeatures(url);
 
     if (!features) {
