@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
 
-function App() {
+async function App() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState(null);
 
@@ -81,6 +81,11 @@ function App() {
       )}
     </div>
   );
+  const response = await fetch("https://phishing-back-end.onrender.com/predict", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(inputData),
+});
 }
 
 export default App;
