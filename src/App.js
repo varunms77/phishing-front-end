@@ -1,83 +1,56 @@
 import React, { useState } from "react";
-import "./App.css";
 
 function App() {
-  const [url, setUrl] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const [result, setResult] = useState(null);
-
-  // Function to extract features from URL
-  const extractFeatures = (url) => {
-    try {
-      const parsed = new URL(url);
-
-      // 1. NumDots = count of "." in the hostname
-      const NumDots = (parsed.hostname.match(/\./g) || []).length;
-
-      // 2. UrlLength = total length of the URL string
-      const UrlLength = url.length;
-
-      // 3. AtSymbol = check if "@" exists in URL
-      const AtSymbol = url.includes("@") ? 1 : 0;
-
-      // 4. NoHttps = check if protocol is NOT https
-      const NoHttps = parsed.protocol === "https:" ? 0 : 1;
-
-      // 5. IpAddress = check if hostname looks like an IP address
-      const IpAddress = /^\d{1,3}(\.\d{1,3}){3}$/.test(parsed.hostname) ? 1 : 0;
-
-      return { NumDots, UrlLength, AtSymbol, NoHttps, IpAddress };
-    } catch (err) {
-      console.error("Invalid URL:", err);
-      return null;
-    }
-  };
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const features = extractFeatures(url);
-
-    if (!features) {
-      alert("Please enter a valid URL");
-      return;
-    }
+    setLoading(true);
+    setResult(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/predict", {
+      const response = await fetch("https://phishing-back-end-2.onrender.com/predict", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(features),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: inputValue }),
       });
+
       const data = await response.json();
       setResult(data.prediction);
-    } catch (err) {
-      console.error("Error:", err);
+    } catch (error) {
+      console.error("Error:", error);
+      setResult("Error: Could not connect to backend");
     }
+
+    setLoading(false);
   };
 
   return (
-    <div className="App" style={{ padding: "20px" }}>
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h2>Phishing URL Detector</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Paste a URL (e.g. https://example.com)"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          style={{ width: "400px" }}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Enter URL"
+          style={{ width: "300px", padding: "10px", marginBottom: "10px" }}
         />
         <br />
-        <button type="submit" style={{ marginTop: "10px" }}>
+        <button type="submit" style={{ padding: "10px 20px" }}>
           Check
         </button>
       </form>
 
+      {loading && <p>Checking...</p>}
       {result && (
-        <h3>
-          Prediction:{" "}
-          <span style={{ color: result === "phishing" ? "red" : "green" }}>
-            {result}
-          </span>
-        </h3>
+        <p style={{ fontWeight: "bold", marginTop: "20px" }}>
+          Result: {result}
+        </p>
       )}
     </div>
   );
