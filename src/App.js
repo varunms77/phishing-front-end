@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
 
-async function App() {
+function App() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState(null);
 
@@ -34,7 +34,6 @@ async function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const inputData={url: url};
     const features = extractFeatures(url);
 
     if (!features) {
@@ -82,11 +81,6 @@ async function App() {
       )}
     </div>
   );
-  const response = await fetch("https://phishing-back-end.onrender.com/predict", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(inputData),
-});
 }
 
 export default App;
